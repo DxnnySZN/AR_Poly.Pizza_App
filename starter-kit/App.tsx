@@ -4,53 +4,64 @@ import {
   ViroText,
   ViroTrackingReason,
   ViroTrackingStateConstants,
+  ViroBox,
+  ViroMaterials,
+  ViroAnimations
 } from "@reactvision/react-viro";
 import React, { useState } from "react";
 import { StyleSheet } from "react-native";
 
-const HelloWorldSceneAR = () => {
-  const [text, setText] = useState("Initializing AR...");
-
-  function onInitialized(state: any, reason: ViroTrackingReason) {
-    console.log("onInitialized", state, reason);
-    if (state === ViroTrackingStateConstants.TRACKING_NORMAL) {
-      setText("Hello World!");
-    } else if (state === ViroTrackingStateConstants.TRACKING_UNAVAILABLE) {
-      // Handle loss of tracking
+const InitialScene = () => {
+  // this minecraft creeper head texture is for the ViroBox
+  ViroMaterials.createMaterials({
+    minecraftCreeperHead: {
+      diffuseTexture: require("./assets/minecraft_creeper_head.jpg")
     }
-  }
+  })
 
-  return (
-    <ViroARScene onTrackingUpdated={onInitialized}>
+  // this animation rotates the ViroBox 90 degrees repeatedly
+  ViroAnimations.registerAnimations({
+    rotate: {
+      duration: 2500,
+      properties: {
+        rotateY: "+=90"
+      }
+    }
+  })
+
+  return(
+    <ViroARScene>
+      {/* displays text in AR space */}
       <ViroText
-        text={text}
-        scale={[0.5, 0.5, 0.5]}
-        position={[0, 0, -1]}
-        style={styles.helloWorldTextStyle}
+        text = {"DxnnySZN"}
+        position = {[-2, -1, -3]}
+        style = {{fontSize: 100, fontFamily: "Arial", color: "red"}}
+      />
+      {/* this is how the minecraft creeper head texture is implemented */}
+      <ViroBox
+        height = {2}
+        length = {2}
+        width = {2}
+        scale = {[0.2, 0.2, 0.2]}
+        position = {[-3, -1, -3]}
+        materials = {["minecraftCreeperHead"]}
+        animation = {{name: "rotate", loop: true, run: true}}
       />
     </ViroARScene>
-  );
-};
+  )
+}
 
 export default () => {
   return (
     <ViroARSceneNavigator
-      autofocus={true}
-      initialScene={{
-        scene: HelloWorldSceneAR,
+      initialScene = {{
+        scene:InitialScene
       }}
-      style={styles.f1}
+      style = {{flex : 1}}
     />
   );
 };
 
 var styles = StyleSheet.create({
-  f1: { flex: 1 },
-  helloWorldTextStyle: {
-    fontFamily: "Arial",
-    fontSize: 30,
-    color: "#ffffff",
-    textAlignVertical: "center",
-    textAlign: "center",
-  },
+  //
 });
