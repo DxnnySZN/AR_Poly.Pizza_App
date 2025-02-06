@@ -6,12 +6,16 @@ import {
   ViroTrackingStateConstants,
   ViroBox,
   ViroMaterials,
-  ViroAnimations
+  ViroAnimations,
+  Viro3DObject,
+  ViroAmbientLight
 } from "@reactvision/react-viro";
 import React, { useState } from "react";
-import { StyleSheet } from "react-native";
+import { StyleSheet, View, Text, TouchableOpacity } from "react-native";
 
-const InitialScene = () => {
+const InitialScene = (props) => {
+  let data = props.sceneNavigator.viroAppProps;
+
   // this minecraft creeper head texture is for the ViroBox
   ViroMaterials.createMaterials({
     minecraftCreeperHead: {
@@ -31,37 +35,72 @@ const InitialScene = () => {
 
   return(
     <ViroARScene>
-      {/* displays text in AR space */}
-      <ViroText
-        text = {"DxnnySZN"}
-        position = {[-2, -1, -3]}
-        style = {{fontSize: 100, fontFamily: "Arial", color: "red"}}
-      />
-      {/* this is how the minecraft creeper head texture is implemented */}
-      <ViroBox
-        height = {2}
-        length = {2}
-        width = {2}
-        scale = {[0.2, 0.2, 0.2]}
-        position = {[-3, -1, -3]}
-        materials = {["minecraftCreeperHead"]}
-        animation = {{name: "rotate", loop: true, run: true}}
-      />
+      {/* this ambient light illuminates 3D objects */}
+      <ViroAmbientLight color = "#FFFFFF"/>
+
+      {/* conditionally renders either "The Crib" or "Nonchalant Tree" */}
+      {data.object === "The Crib" ?
+        <Viro3DObject
+          source = {require("./assets/The_Crib.glb")}
+          position = {[0, -3, -5]}
+          scale = {[0.5, 0.5, 0.5]}
+          type = "GLB"
+        />
+        :
+        <Viro3DObject
+          source = {require("./assets/Nonchalant_Tree.glb")}
+          position = {[0, -3, -5]}
+          scale = {[0.3, 0.3, 0.3]}
+          type = "GLB"
+        />
+      }
     </ViroARScene>
   )
 }
 
 export default () => {
+  const[object, setObject] = useState("The Crib");
   return (
-    <ViroARSceneNavigator
-      initialScene = {{
-        scene:InitialScene
-      }}
-      style = {{flex : 1}}
-    />
+    <View style = {styles.mainView}>
+      {/* updates the displayed 3D object based on user selection */}
+      <ViroARSceneNavigator
+        initialScene = {{
+          scene:InitialScene
+        }}
+        viroAppProps = {{"object": object}}
+        style = {{flex : 1}}
+      />
+
+      {/* UI controls to switch between 3D objects */}
+      <View style = {styles.controlsView}>
+        <TouchableOpacity onPress = {() => setObject("The Crib")}>
+          <Text style = {styles.text}>Display The Crib</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity onPress = {() => setObject("Nonchalant Tree")}>
+          <Text style = {styles.text}>Display Nonchalant Tree</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
   );
 };
 
 var styles = StyleSheet.create({
-  //
+  mainView: {
+    flex: 1
+  },
+  controlsView: {
+    width: "100%",
+    height: 100,
+    backgroundColor: "#FFFFFF",
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "space-between"
+  },
+  text: {
+    margin: 20,
+    backgroundColor: "#9d9d9d",
+    padding: 10,
+    fontWeight: "bold"
+  }
 });
