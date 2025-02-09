@@ -14,7 +14,15 @@ import React, { useState } from "react";
 import { StyleSheet, View, Text, TouchableOpacity } from "react-native";
 
 const InitialScene = (props) => {
-  let data = props.sceneNavigator.viroAppProps;
+  // initial rotation & position states
+  const [rotation, setRotation] = useState([-45, 60, 40]);
+  const [position, setPosition] = useState([0, 0, 0]);
+
+  // scale states for "The Crib" & "Nonchalant Tree"
+  const [cribScale, setCribScale] = useState([0.5, 0.5, 0.5]);
+  const [treeScale, setTreeScale] = useState([0.3, 0.3, 0.3]);
+
+  let data = props.sceneNavigator.viroAppProps || { object: "The Crib" }; // "The Crib" is set to be the default object when the app launches
 
   // this minecraft creeper head texture is for the ViroBox
   ViroMaterials.createMaterials({
@@ -33,6 +41,38 @@ const InitialScene = (props) => {
     }
   })
 
+  // moves object when user drags the object
+  const moveObject = (newPosition) => {
+    setPosition(newPosition);
+  }
+
+  // rotates object when user does rotation gesture
+  const rotateObject = (rotateState, rotationFactor, source) => {
+    if(rotateState === 3) {
+      let newRotation = [rotation[0] + rotationFactor, rotation[1] + rotationFactor, rotation[2] + rotationFactor];
+      setRotation(newRotation);
+    }
+  }
+
+  // scales object when user pinches the object
+  const scaleCribObject = (pinchState, scaleFactor, source) => {
+    if (pinchState === 3) {
+      let currentScale = cribScale[0];
+      let newScale = currentScale * scaleFactor;
+      let newScaleArray = [newScale, newScale, newScale];
+      setCribScale(newScaleArray);
+    }
+  }
+
+  const scaleTreeObject = (pinchState, scaleFactor, source) => {
+    if (pinchState === 3) {
+      let currentScale = treeScale[0];
+      let newScale = currentScale * scaleFactor;
+      let newScaleArray = [newScale, newScale, newScale];
+      setTreeScale(newScaleArray);
+    }
+  }
+
   return(
     <ViroARScene>
       {/* this ambient light illuminates 3D objects */}
@@ -42,16 +82,24 @@ const InitialScene = (props) => {
       {data.object === "The Crib" ?
         <Viro3DObject
           source = {require("./assets/The_Crib.glb")}
-          position = {[0, -3, -5]}
-          scale = {[0.5, 0.5, 0.5]}
+          position = {position}
+          scale = {cribScale}
+          rotation = {rotation}
           type = "GLB"
+          onDrag = {moveObject}
+          onRotate = {rotateObject}
+          onPinch = {scaleCribObject}
         />
         :
         <Viro3DObject
           source = {require("./assets/Nonchalant_Tree.glb")}
-          position = {[0, -3, -5]}
-          scale = {[0.3, 0.3, 0.3]}
+          position = {position}
+          scale = {treeScale}
+          rotation = {rotation}
           type = "GLB"
+          onDrag = {moveObject}
+          onRotate = {rotateObject}
+          onPinch = {scaleTreeObject}
         />
       }
     </ViroARScene>
