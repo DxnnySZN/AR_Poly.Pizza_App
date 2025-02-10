@@ -14,11 +14,9 @@ import React, { useState } from "react";
 import { StyleSheet, View, Text, TouchableOpacity } from "react-native";
 
 const InitialScene = (props) => {
-  // initial rotation & position states
+  // the elements in each array correspond to the behavior of the object after one rotation, one movement, or one scaling
   const [rotation, setRotation] = useState([-45, 60, 40]);
   const [position, setPosition] = useState([0, 0, 0]);
-
-  // scale states for "The Crib" & "Nonchalant Tree"
   const [cribScale, setCribScale] = useState([0.5, 0.5, 0.5]);
   const [treeScale, setTreeScale] = useState([0.3, 0.3, 0.3]);
 
