@@ -13,108 +13,90 @@ import {
 import React, { useState } from "react";
 import { StyleSheet, View, Text, TouchableOpacity } from "react-native";
 
-const InitialScene = (props) => {
+// defines props for InitialScene
+interface InitialSceneProps {
+  sceneNavigator: {
+    viroAppProps: {
+      object: string;
+    };
+  };
+}
+
+const InitialScene = (props: InitialSceneProps): JSX.Element => {
   // the elements in each array correspond to the behavior of the object after one rotation, one movement, or one scaling
-  const [rotation, setRotation] = useState([-45, 60, 40]);
-  const [position, setPosition] = useState([0, 0, 0]);
-  const [cribScale, setCribScale] = useState([0.5, 0.5, 0.5]);
-  const [treeScale, setTreeScale] = useState([0.3, 0.3, 0.3]);
+  const [rotation, setRotation] = useState<[number, number, number]>([0, -45, 0]);
+  const [position, setPosition] = useState<[number, number, number]>([0, -0.5, -2]); 
+  const [scale, setScale] = useState<[number, number, number]>([0.2, 0.2, 0.2]); 
 
-  let data = props.sceneNavigator.viroAppProps || { object: "The Crib" }; // "The Crib" is set to be the default object when the app launches
-
-  // this minecraft creeper head texture is for the ViroBox
-  ViroMaterials.createMaterials({
-    minecraftCreeperHead: {
-      diffuseTexture: require("./assets/minecraft_creeper_head.jpg")
-    }
-  })
-
-  // this animation rotates the ViroBox 90 degrees repeatedly
-  ViroAnimations.registerAnimations({
-    rotate: {
-      duration: 2500,
-      properties: {
-        rotateY: "+=90"
-      }
-    }
-  })
+  // "The Crib" is set to be the default object when the app launches
+  const data = props.sceneNavigator.viroAppProps || { object: "The Crib" }; 
 
   // moves object when user drags the object
-  const moveObject = (newPosition) => {
+  const moveObject = (newPosition: [number, number, number]) => {
     setPosition(newPosition);
-  }
+  };
 
-  // rotates object when user does rotation gesture
-  const rotateObject = (rotateState, rotationFactor, source) => {
-    if(rotateState === 3) {
-      let newRotation = [rotation[0] + rotationFactor, rotation[1] + rotationFactor, rotation[2] + rotationFactor];
-      setRotation(newRotation);
+  // rotates object when user does a rotation gesture
+  const rotateObject = (rotateState: number, rotationFactor: number) => {
+    if (rotateState === 3) {
+      const sensitivity = 0.5; // reduces rotation sensitivity
+      setRotation(([x, y, z]) => [x, y + rotationFactor * sensitivity, z]); // rotates only around Y-axis smoothly
     }
-  }
+  };
 
-  // scales object when user pinches the object
-  const scaleCribObject = (pinchState, scaleFactor, source) => {
+  // scales object when user does pinching gesture
+  const scaleObject = (pinchState: number, scaleFactor: number) => {
     if (pinchState === 3) {
-      let currentScale = cribScale[0];
-      let newScale = currentScale * scaleFactor;
-      let newScaleArray = [newScale, newScale, newScale];
-      setCribScale(newScaleArray);
+      // ensures the object will not scale beyond the limits of 0.05 and 0.5 regardless of the pinch gesture's intensity
+      const newScale = Math.max(0.05, Math.min(0.5, scale[0] * scaleFactor)); 
+      
+      setScale([newScale, newScale, newScale]);
     }
-  }
-
-  const scaleTreeObject = (pinchState, scaleFactor, source) => {
-    if (pinchState === 3) {
-      let currentScale = treeScale[0];
-      let newScale = currentScale * scaleFactor;
-      let newScaleArray = [newScale, newScale, newScale];
-      setTreeScale(newScaleArray);
-    }
-  }
-
-  return(
+  };  
+  
+  return (
     <ViroARScene>
       {/* this ambient light illuminates 3D objects */}
-      <ViroAmbientLight color = "#FFFFFF"/>
+      <ViroAmbientLight color="#FFFFFF" />
 
       {/* conditionally renders either "The Crib" or "Nonchalant Tree" */}
-      {data.object === "The Crib" ?
+      {data.object === "The Crib" ? (
         <Viro3DObject
           source = {require("./assets/The_Crib.glb")}
           position = {position}
-          scale = {cribScale}
+          scale = {scale}
           rotation = {rotation}
           type = "GLB"
           onDrag = {moveObject}
           onRotate = {rotateObject}
-          onPinch = {scaleCribObject}
+          onPinch = {scaleObject}
         />
-        :
+      ) : (
         <Viro3DObject
           source = {require("./assets/Nonchalant_Tree.glb")}
           position = {position}
-          scale = {treeScale}
+          scale = {scale}
           rotation = {rotation}
           type = "GLB"
           onDrag = {moveObject}
           onRotate = {rotateObject}
-          onPinch = {scaleTreeObject}
+          onPinch = {scaleObject}
         />
-      }
+      )}
     </ViroARScene>
-  )
-}
+  );
+};
 
-export default () => {
-  const[object, setObject] = useState("The Crib");
+const App: React.FC = () => {
+  const [object, setObject] = useState("The Crib");
+
   return (
-    <View style = {styles.mainView}>
+    <View style={styles.mainView}>
       {/* updates the displayed 3D object based on user selection */}
       <ViroARSceneNavigator
-        initialScene = {{
-          scene:InitialScene
-        }}
-        viroAppProps = {{"object": object}}
-        style = {{flex : 1}}
+        initialScene = {{ scene: InitialScene }} 
+        viroAppProps = {{ object }}
+        style = {{ flex: 1 }}
       />
 
       {/* UI controls to switch between 3D objects */}
@@ -131,7 +113,9 @@ export default () => {
   );
 };
 
-var styles = StyleSheet.create({
+export default App;
+
+const styles = StyleSheet.create({
   mainView: {
     flex: 1
   },
