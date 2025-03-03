@@ -1,4 +1,4 @@
-# AR_Crumbl_App
+# AR_Poly.Pizza_App
 2nd Semester M468 Independent CS/H Project Repo
 
 # App Progression
