@@ -1,62 +1,29 @@
+// imports axios for making HTTP requests to the API
 import axios from "axios";
 
 const API_KEY = "966924c2c62545e9927898c1deb77d6b";
 
 // creates an axios instance for the Poly Pizza API
 const api_client = axios.create({
-  baseURL: "https://api.poly.pizza/v1.1", // base URL for the API
+  baseURL: "https://api.poly.pizza/v1.1", // base URL for all API requests
   headers: {
-    "x-auth-token": API_KEY, // includes the API key in the request headers
+    "x-auth-token": API_KEY, // authenticates each request with the API key
   },
 });
 
 /**
- * Search for models using a keyword and optional filters.
- * @param keyword - The search term (e.g., "cat" or "tree").
- * @param filters - Optional filters (e.g., category, license, animated).
- * @returns A list of search results or an empty array if an error occurs.
+ * searches for models by keyword only
+ * @param keyword - search term (e.g. "duck", "pizza", "house")
+ * @returns list of matching models or empty array if error occurs
  */
-export const searchModels = async (keyword: string, filters = {}) => {
+export const searchModels = async (keyword: string) => {
   try {
-    const response = await api_client.get(`/search/${encodeURIComponent(keyword)}`, {
-      params: filters, // passes filters as query parameters
-    });
+    // sends GET request to the /search/ endpoint with URL-encoded keyword to safely fetch matching models
+    const response = await api_client.get(`/search/${encodeURIComponent(keyword)}`);
+    
     return response.data.results; // returns the list of models
   } catch (error) {
     console.error("Error searching models:", error);
-    return []; // returns an empty array if there's an error
-  }
-};
-
-/**
- * Fetch details of a specific model by its ID.
- * @param id - The ID of the model (e.g., "52s3JpUSjmX").
- * @returns The model details or null if an error occurs.
- */
-export const getModelById = async (id: string) => {
-  try {
-    const response = await api_client.get(`/model/${id}`);
-    return response.data; // returns the model details
-  } catch (error) {
-    console.error("Error fetching model:", error);
-    return null; // returns null if there's an error
-  }
-};
-
-/**
- * Fetch all models belonging to a specific user.
- * @param username - The username of the creator (e.g., "dook").
- * @param filters - Optional filters (e.g., limit, page).
- * @returns A list of models or an empty array if an error occurs.
- */
-export const getModelsByUser = async (username: string, filters = {}) => {
-  try {
-    const response = await api_client.get(`/user/${username}`, {
-      params: filters, // passes filters as query parameters
-    });
-    return response.data.models; // returns the list of models
-  } catch (error) {
-    console.error("Error fetching user models:", error);
-    return []; // returns an empty array if there's an error
+    return []; // returns empty array if search fails
   }
 };
