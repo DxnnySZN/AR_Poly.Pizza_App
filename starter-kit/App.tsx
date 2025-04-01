@@ -144,7 +144,7 @@ const App: React.FC = () => {
             {models.map((model) => (
               <TouchableOpacity key = {model.ID} onPress = {() => handleModelSelect(model)}>
                 <View style = {styles.modelCard}>
-                  {/* thumbnail preview of the 3D model */}
+                  {/* thumbnail preview of the 3D object */}
                   <Image source = {{ uri: model.Thumbnail }} style = {styles.modelImage} />
                   <Text style = {styles.modelName}>{model.Title}</Text>
                 </View>
@@ -154,7 +154,7 @@ const App: React.FC = () => {
         </ScrollView>
       )}
 
-      {/* rotation controls for the AR object */}
+      {/* rotation controls for the 3D object */}
       <View style = {styles.rotationControls}>
         <TouchableOpacity onPress = {() => rotateObject("left")}>
           <Text style = {styles.arrowButton}>←</Text>
